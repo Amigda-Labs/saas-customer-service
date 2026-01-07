@@ -11,11 +11,22 @@ import asyncio
 from agents import run_demo_loop
 from agents import Runner, RunConfig
 
-
+#Context
+from core.context import SharedContext
+from datetime import datetime
 
 async def main():
+    #Create initial context
+    context = SharedContext(
+        name = "",
+        contact_num="",
+        start_time=datetime.now(),
+        end_time=datetime.now()
+    )
+
+
     #Using Run Demo Loop
-    await run_demo_loop(front_desk_agent)
+    await run_demo_loop(front_desk_agent, context=context)
     
     #Using Runner - More controlled
     #config = RunConfig(

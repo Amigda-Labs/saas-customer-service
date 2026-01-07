@@ -1,5 +1,9 @@
-from agents import Agent
+from datetime import date
+from typing import Any
 
+
+from agents import Agent, RunContextWrapper
+from core.context import SharedContext
 
 
 # --------- For Non OpenAI Models w/ Tracing ----------
@@ -44,18 +48,40 @@ async def check_available_schedule() -> str:
     """
     return available_schedule
     
+from agents import RunContextWrapper
+from core.context import SharedContext
+from datetime import datetime
 
 @function_tool
-async def book_an_appointment():
+async def book_an_appointment(
+    ctx: RunContextWrapper[SharedContext],
+    name: str,
+    contact_num: str,
+    start_time: datetime,
+    end_time: datetime
+) -> str :
     """
-    This function will book an appointment
+    Book an appointment with the provided details.
+    
+    Args:
+        name: Customer's full name
+        contact_num: Customer's contact number  
+        start_time: Appointment start time
+        end_time: Appointment end time
     """
+    # Access the context via ctx.context
+    ctx.context.name = name
+    ctx.context.contact_num = contact_num
+    ctx.context.start_time = start_time
+    ctx.context.end_time = end_time
+
     print("📌 booking appointment appointment")
+    return f"✅ Appointment booked for {name} from {start_time} to {end_time}"
 
 
 # -------- Agent ------------
 
-front_desk_agent = Agent(
+front_desk_agent = Agent[SharedContext](
     name="Front Desk Agent",
     model=model,
     instructions=front_desk_agent_instructions,
