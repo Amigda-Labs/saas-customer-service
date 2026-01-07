@@ -15,18 +15,17 @@ from agents import Runner, RunConfig
 
 async def main():
     #Using Run Demo Loop
-    #await run_demo_loop(front_desk_agent)
+    await run_demo_loop(front_desk_agent)
     
     #Using Runner - More controlled
+    #config = RunConfig(
+    #    trace_include_sensitive_data=False,  #Content invisibility
+    #    #tracing_disabled=True, #Completely zero visibility
+    #    workflow_name = "Front Desk Agent Workflow"
+    #)
 
-    config = RunConfig(
-        trace_include_sensitive_data=False,  #Content invisibility
-        #tracing_disabled=True, #Completely zero visibility
-        workflow_name = "Front Desk Agent Workflow"
-    )
-
-    result = await Runner.run(front_desk_agent, "Hi there what do you do?", run_config=config)
-    print(result)
+    #result = await Runner.run(front_desk_agent, "Hi there what do you do?", run_config=config)
+    #print(result)
 
 
 
