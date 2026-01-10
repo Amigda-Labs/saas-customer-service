@@ -204,12 +204,16 @@ Now we'll create the actual credentials your Python code will use.
 
 3. Select **OAuth client ID**
 
+![Create credentials](doc_assets/create_credentials.png)
+
 4. Configure the OAuth client:
    
    | Field | Value |
    |-------|-------|
    | Application type | **Desktop app** |
-   | Name | `front-desk-agent` |
+   | Name | `saas-customer-service` |
+
+![Configure OAuth](doc_assets/configure_oauth.png)
 
 5. Click **Create**
 
