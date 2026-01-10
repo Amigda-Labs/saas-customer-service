@@ -38,3 +38,11 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+```gitignore
+# Google OAuth credentials
+credentials.json
+token.json
+client_secret*.json
+google_client_secret*.json
+```

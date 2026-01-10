@@ -219,9 +219,16 @@ Now we'll create the actual credentials your Python code will use.
 
 6. A popup appears with your credentials. Click **Download JSON**
 
-7. **Important:** Save this file as `credentials.json` in your project root directory
+![OAuth Created](doc_assets/oauth_created.png)
 
-8. Click **OK** to close the popup
+![Json Downloaded](doc_assets/json_downloaded.png)
+
+7. Click **OK** to close the popup
+
+8. **Important:** Save this file as `credentials.json` in your project root directory
+
+![Import client secret in root](doc_assets/import_client_secret_in_root.png)
+
 
 > 🔐 **Security Note:** Never commit `credentials.json` to version control! Add it to your `.gitignore`.
 
@@ -235,6 +242,8 @@ Add these lines to your `.gitignore` file to protect sensitive files:
 # Google OAuth credentials
 credentials.json
 token.json
+client_secret*.json
+google_client_secret*.json
 ```
 
 ---
@@ -379,29 +388,4 @@ Once authorization is working, you're ready to integrate Google Calendar into yo
 | OAuth Consent | APIs & Services → OAuth consent screen |
 | Credentials | APIs & Services → Credentials |
 | Calendar API Docs | [developers.google.com/calendar](https://developers.google.com/calendar/api/quickstart/python) |
-
----
-
-## Recording Tips 🎬
-
-If you're recording this setup:
-
-1. **Before recording:**
-   - Have Google Cloud Console already open and logged in
-   - Know your project name in advance
-   - Have your email ready to paste
-
-2. **During recording:**
-   - Zoom in on the browser (125-150%)
-   - Move slowly between screens
-   - Narrate what you're clicking
-
-3. **Common pauses:**
-   - Project creation: ~30 seconds
-   - API enabling: ~10 seconds
-   - Credential creation: instant
-
-4. **Clean demo:**
-   - Use incognito/private browser for OAuth flow
-   - Create a test calendar with sample events beforehand
 
