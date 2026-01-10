@@ -1,3 +1,11 @@
+"""
+Verification script for adding events to Google Calendar.
+Tests the ability to create, verify, and optionally delete calendar events.
+
+Usage:
+    uv run python scripts/verify_calendar_auth.py           # Show Calendar Events
+"""
+
 import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials

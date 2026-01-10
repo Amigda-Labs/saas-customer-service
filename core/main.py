@@ -1,3 +1,9 @@
+"""
+Starts the application
+
+Usage:
+    uv run -m core.main
+"""
 #Load Environments
 from dotenv import load_dotenv
 from pydantic import config
