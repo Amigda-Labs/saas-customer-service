@@ -223,14 +223,18 @@ Now we'll create the actual credentials your Python code will use.
 
 ![Json Downloaded](doc_assets/json_downloaded.png)
 
-7. Click **OK** to close the popup
 
-8. **Important:** Save this file as `credentials.json` in your project root directory
+7. Click **OK** to close the popup
 
 ![Import client secret in root](doc_assets/import_client_secret_in_root.png)
 
+8. **Important:** Rename this file as `credentials.json` in your project root directory
+
+![Rename to credentials.json](doc_assets/rename_to_credentials.png)
+
 
 > 🔐 **Security Note:** Never commit `credentials.json` to version control! Add it to your `.gitignore`.
+> **Extra note** It's not really required to change it to credentials.json. Since we get unique keys, we rename it so the code would point to a unique credentials.json instead of having each of our own client secret file names. 
 
 ---
 
@@ -268,7 +272,8 @@ pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
 The first time you run your app, you'll need to authorize it to access your calendar.
 
-Create a test file `test_calendar_auth.py`:
+1. Create a `scripts/` directory in your project root
+2. Create `scripts/verify_calendar_auth.py` with the following code:
 
 ```python
 import os
@@ -332,11 +337,21 @@ if __name__ == '__main__':
     
     print("\n✅ Authorization successful! token.json has been created.")
 ```
+## BONUS: If you want to target a specific calendar:
+- a.) Click the three vertical dots on the google calendar and click **Settings and sharing**
+- b.) Under **Settings for my calendars**, select **Integrate calendar**
+- c.) Copy the **Calendar ID** 
+- d.) In the source code - **scripts/verify_calendar_auth.py**, replace the calendarId='primary' with the selected calendar id (i.e. calendarId="Your_Calendar_ID")
 
-Run the test:
+
+3. Run the verification script:
 
 ```bash
-python test_calendar_auth.py
+uv run scripts/verify_calendar_auth.py
+```
+or 
+```bash
+python scripts/verify_calendar_auth.py
 ```
 
 **What happens:**
@@ -347,6 +362,13 @@ python test_calendar_auth.py
 5. Return to your terminal - you should see your calendar events listed
 6. A `token.json` file is created (stores your access/refresh tokens)
 
+Reference Images:
+![Browser window opens](doc_assets/browswer_window_opens.png)
+![Has not verified](doc_assets/hasnt_verified.png)
+![Auth flow completed](doc_assets/auth_flow_completed.png)
+   
+#### Sample Output :
+![Get calendar successful](doc_assets/show_calendar_confirmation.png)
 ---
 
 ## Troubleshooting
@@ -374,9 +396,7 @@ python test_calendar_auth.py
 ---
 
 ## Next Steps
-
-Once authorization is working, you're ready to integrate Google Calendar into your Front Desk Agent! See `README.md` for integration instructions.
-
+Once authorization is working, you're ready to integrate Google Calendar into your Front Desk Agent! 
 ---
 
 ## Quick Reference
