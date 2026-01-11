@@ -21,6 +21,12 @@ from agents import Runner, RunConfig
 from core.context import SharedContext
 from datetime import datetime
 
+#Session
+from agents import SQLiteSession
+
+#Guardrails
+from agents.exceptions import InputGuardrailTripwireTriggered
+
 async def main():
     #Create initial context
     context = SharedContext(
@@ -32,17 +38,47 @@ async def main():
 
 
     #Using Run Demo Loop
-    await run_demo_loop(front_desk_agent, context=context)
-    
-    #Using Runner - More controlled
-    #config = RunConfig(
-    #    trace_include_sensitive_data=False,  #Content invisibility
-    #    #tracing_disabled=True, #Completely zero visibility
-    #    workflow_name = "Front Desk Agent Workflow"
-    #)
+    #await run_demo_loop(front_desk_agent, context=context)
 
-    #result = await Runner.run(front_desk_agent, "Hi there what do you do?", run_config=config)
-    #print(result)
+    #Using Runner - More controlled
+    
+    # Use a unique ID per user/conversation in production
+    session = SQLiteSession("front_desk_session")
+    
+    
+    config = RunConfig(
+        trace_include_sensitive_data=True,  #Content invisibility
+        #tracing_disabled=True, #Completely zero visibility
+        workflow_name = "Front Desk Agent Workflow"
+    )
+
+    while True:
+        user_input = input("Ask anything: ").strip()
+
+        if user_input.lower() in ('quit', 'exit', 'q'):
+            print("Goodbye!")
+            break
+
+        try:
+            result = await Runner.run(
+                front_desk_agent,
+                user_input,
+                context=context,
+                session=session,
+                run_config=config
+            )
+            print(result)
+        except InputGuardrailTripwireTriggered as e:
+            # Catch for Guardrail blocking the input
+            # The blocked message is NOT added to session history
+            output_info = e.guardrail_result.output.output_info
+            print(f"\n🚫 Request blocked by security guardrail!")
+            print(f"   Reason: {output_info.reasoning}")
+            print(f"   Threat level: {output_info.threat_level}")
+            if output_info.abuse_type:
+                print(f"   Type: {output_info.abuse_type}")
+            print("\nPlease make a reasonable booking request.\n")
+            # Loop continues - conversation history remains clean
 
 
 
