@@ -16,6 +16,8 @@ from agents.extensions.models.litellm_model import LitellmModel
 from core.context import SharedContext
 from services.google_calendar import get_available_schedule, create_calendar_event
 
+from guardrails.input.booking_abuse import booking_abuse_guardrail
+
 # --------- For Non OpenAI Models w/ Tracing ----------
 # Agent(model="gpt-5.2", ...)
 # Agent(model="litellm/anthropic/claude-sonnet-4-5-20250929", ...)
@@ -120,6 +122,8 @@ async def book_an_appointment(
 front_desk_agent = Agent[SharedContext](
     name="Front Desk Agent",
     model=model,
+    #model="gpt-5.2",
     instructions=front_desk_agent_instructions,
-    tools=[check_available_schedule, book_an_appointment]
+    tools=[check_available_schedule, book_an_appointment],
+    input_guardrails=[booking_abuse_guardrail],
 )
