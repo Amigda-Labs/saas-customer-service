@@ -229,6 +229,11 @@ def validate_and_fix_datetime(dt: datetime) -> datetime:
     Raises:
         ValueError: If the datetime is in the past even after year correction
     """
+
+    # Strip timezone if present (normalize to naive datetime)
+    if dt.tzinfo is not None:
+        dt = dt.replace(tzinfo=None)
+        
     now = datetime.now()
     
     # If the year is in the past, try to fix it
