@@ -60,7 +60,7 @@ to "low" or "medium" but is_abuse_attempt to False - let them proceed but flag i
 Be reasonable - some users legitimately need 2 appointments. Focus on obvious abuse patterns.
 """
 
-
+from guardrails.utils.input_extraction import extract_latest_user_message
 
 
 @input_guardrail(run_in_parallel=False)  # BLOCK before booking tool executes
@@ -76,7 +76,9 @@ async def booking_abuse_guardrail(
     the booking tool from executing if abuse is detected.
     """
 
-    result = await Runner.run(booking_abuse_detector, input)
+    latest_message = extract_latest_user_message(input)
+
+    result = await Runner.run(booking_abuse_detector, latest_message)
     
     return GuardrailFunctionOutput(
         output_info=result.final_output,
