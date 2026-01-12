@@ -27,6 +27,9 @@ from agents import SQLiteSession
 #Guardrails
 from agents.exceptions import InputGuardrailTripwireTriggered
 
+#Trace
+from agents import trace
+
 async def main():
     #Create initial context
     context = SharedContext(
@@ -40,8 +43,7 @@ async def main():
     #Using Run Demo Loop
     #await run_demo_loop(front_desk_agent, context=context)
 
-    #Using Runner - More controlled
-    
+    # Using Runner - More controlled
     # Use a unique ID per user/conversation in production
     session = SQLiteSession("front_desk_session")
     
@@ -52,33 +54,38 @@ async def main():
         workflow_name = "Front Desk Agent Workflow"
     )
 
-    while True:
-        user_input = input("Ask anything: ").strip()
+    with trace(
+        workflow_name="Front Desk Session",
+        group_id=session.session_id,  # Optional: link traces by session
+        metadata={"session_type": "front_desk"}  # Optional metadata
+    ):
+        while True:
+            user_input = input("Ask anything: ").strip()
 
-        if user_input.lower() in ('quit', 'exit', 'q'):
-            print("Goodbye!")
-            break
+            if user_input.lower() in ('quit', 'exit', 'q'):
+                print("Goodbye!")
+                break
 
-        try:
-            result = await Runner.run(
-                front_desk_agent,
-                user_input,
-                context=context,
-                session=session,
-                run_config=config
-            )
-            print(result)
-        except InputGuardrailTripwireTriggered as e:
-            # Catch for Guardrail blocking the input
-            # The blocked message is NOT added to session history
-            output_info = e.guardrail_result.output.output_info
-            print(f"\n🚫 Request blocked by security guardrail!")
-            print(f"   Reason: {output_info.reasoning}")
-            print(f"   Threat level: {output_info.threat_level}")
-            if output_info.abuse_type:
-                print(f"   Type: {output_info.abuse_type}")
-            print("\nPlease make a reasonable booking request.\n")
-            # Loop continues - conversation history remains clean
+            try:
+                result = await Runner.run(
+                    front_desk_agent,
+                    user_input,
+                    context=context,
+                    session=session,
+                    run_config=config
+                )
+                print(result)
+            except InputGuardrailTripwireTriggered as e:
+                # Catch for Guardrail blocking the input
+                # The blocked message is NOT added to session history
+                output_info = e.guardrail_result.output.output_info
+                print(f"\n🚫 Request blocked by security guardrail!")
+                print(f"   Reason: {output_info.reasoning}")
+                print(f"   Threat level: {output_info.threat_level}")
+                if output_info.abuse_type:
+                    print(f"   Type: {output_info.abuse_type}")
+                print("\nPlease make a reasonable booking request.\n")
+                # Loop continues - conversation history remains clean
 
 
 
