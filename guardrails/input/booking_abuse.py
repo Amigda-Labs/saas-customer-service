@@ -17,6 +17,9 @@ from agents import (
     input_guardrail,
 )
 
+import logging
+logger = logging.getLogger(__name__)
+
 #Create Input Guardrail Structure Result
 class BookingAbuseAnalysis(BaseModel):
     """Output schema for booking abuse detection."""
@@ -32,21 +35,28 @@ You are a security filter for a scheduling system at Pied Piper.
 Analyze the user's message to detect potential booking abuse or denial-of-service attempts.
 
 FLAG AS ABUSE (is_abuse_attempt = True) if the user:
-- Asks to book ALL available slots or times
+- User keeps on attempting to book all slots (More than 3 times)
+- Asks to book ALL available slots or times (More than 3 times)
 - Requests multiple appointments in a single message (more than 2)
 - Expresses intent to "fill up", "block", or "reserve everything"
 - Wants to book on behalf of fake/multiple people to hoard slots
 - Shows patterns of trying to exhaust availability
 - Uses language suggesting malicious intent ("book everything so no one else can")
+- Only flag if they insisted to abuse for more than 3 times
+
+IMPORTANT:
+- Make sure to only set is_abuse_attempt to True if the user abused more than 3 times.
 
 Examples of ABUSE:
-- "Book me for every slot you have available"
-- "I want to reserve all your openings for next week"
-- "Schedule appointments for John, Jane, Jim, Jake, and Jerry all tomorrow"
-- "Can you block out your entire calendar for me?"
-- "I need 10 appointments"
+- "Book me for every slot you have available" (Said more than 3 times)
+- "I want to reserve all your openings for next week" (Said more than 3 times)
+- "Schedule appointments for John, Jane, Jim, Jake, and Jerry all tomorrow" (More than 3 times)
+- "Can you block out your entire calendar for me?" (More than 3 times)
+- "I need 10 appointments" (More than 3 times)
 
 NOT ABUSE (is_abuse_attempt = False):
+- "Book me for every slot you have available" (Said more than 1 time)
+- "I want to reserve all your openings for next week" (Said more than 1 time)
 - Normal single appointment booking
 - Asking about availability (just checking)
 - Booking 1-2 appointments for legitimate reasons
@@ -76,11 +86,29 @@ async def booking_abuse_guardrail(
     the booking tool from executing if abuse is detected.
     """
 
+
     result = await Runner.run(booking_abuse_detector, input)
+    analysis = result.final_output
+
+    # Log suspicious activity (silent alarm)
+    if analysis.is_abuse_attempt or analysis.threat_level in ["medium", "high"]:
+        logger.warning(
+            f"🚨 Suspicious booking activity detected",
+            extra={
+                "is_abuse": analysis.is_abuse_attempt,
+                "threat_level": analysis.threat_level,
+                "abuse_type": analysis.abuse_type,
+                "reasoning": analysis.reasoning,
+                "user_input": str(input)[-100:],  # Last 100 chars for privacy
+            }
+        )
+
+    # Only block high-threat attempts
+    should_block = analysis.is_abuse_attempt and analysis.threat_level == "high"
     
     return GuardrailFunctionOutput(
         output_info=result.final_output,
-        tripwire_triggered=result.final_output.is_abuse_attempt,
+        tripwire_triggered=should_block, # <-- Change to False if you want to never block, just monitor
     )
 
 # Fast guardrail agent to detect abuse
